@@ -1,5 +1,5 @@
 import type { JSX, ReactNode } from "react";
-import { Link } from "react-router-dom";
+import Navbar from "./Navbar";
 
 interface MainLayoutProps {
     children: ReactNode;
@@ -8,14 +8,7 @@ interface MainLayoutProps {
 function MainLayout({ children }: MainLayoutProps): JSX.Element {
     return (
         <>
-            <nav>
-                <Link to="/">Inicio</Link>
-                <Link to="/login">Login</Link>
-                <Link to="/registro">Registro</Link>
-                <Link to="/catalogo">Catálogo</Link>
-                <Link to="/carrito">Carrito</Link>
-                <Link to="/mis-pedidos">Mis pedidos</Link>
-            </nav>
+            <Navbar />
 
             <main>{children}</main>
         </>
