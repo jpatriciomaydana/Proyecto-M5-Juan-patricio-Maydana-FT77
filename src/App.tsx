@@ -1,5 +1,7 @@
 import type { JSX } from "react";
-import { Link, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
+
+import MainLayout from "./components/layout/MainLayout";
 
 import Home from "./pages/customer/Home";
 import Login from "./pages/auth/Login";
@@ -10,16 +12,7 @@ import Orders from "./pages/customer/Orders";
 
 function App(): JSX.Element {
   return (
-    <>
-      <nav>
-        <Link to="/">Inicio</Link>
-        <Link to="/login">Login</Link>
-        <Link to="/registro">Registro</Link>
-        <Link to="/catalogo">Catálogo</Link>
-        <Link to="/carrito">Carrito</Link>
-        <Link to="/mis-pedidos">Mis pedidos</Link>
-      </nav>
-
+    <MainLayout>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -28,7 +21,7 @@ function App(): JSX.Element {
         <Route path="/carrito" element={<Cart />} />
         <Route path="/mis-pedidos" element={<Orders />} />
       </Routes>
-    </>
+    </MainLayout>
   );
 }
 
