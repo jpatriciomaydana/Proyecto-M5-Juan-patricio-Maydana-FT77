@@ -4,13 +4,24 @@ import {
     signOut,
 } from "firebase/auth";
 
-import { auth } from "./firebase";
+import { auth, db } from "./firebase";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 export async function registerUser(
     email: string,
     password: string,
 ): Promise<void> {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const credential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+    );
+
+    await setDoc(doc(db, "users", credential.user.uid), {
+        email: credential.user.email,
+        role: "customer",
+        createdAt: serverTimestamp(),
+    });
 }
 
 export async function loginUser(

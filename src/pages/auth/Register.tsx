@@ -1,5 +1,7 @@
 import { useState } from "react";
 import type { SubmitEvent } from "react";
+import { useAuthContext } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
     const [email, setEmail] = useState("");
@@ -7,11 +9,16 @@ function Register() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
-    function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+    const navigate = useNavigate();
+    const { register } = useAuthContext();
+
+    async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
 
         setError("");
+        setSuccess("");
 
         if (password !== confirmPassword) {
             setError("Las contraseñas no coinciden.");
@@ -20,7 +27,16 @@ function Register() {
 
         setLoading(true);
 
-        // Próximo paso: conectar register() mediante useAuth().
+        try {
+            await register(email, password);
+            navigate("/catalogo");
+        } catch (error) {
+            console.error(error);
+            setError("No se pudo crear la cuenta.");
+
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -28,6 +44,7 @@ function Register() {
             <h1>Crear cuenta</h1>
             <p>Registrate para comenzar a comprar.</p>
 
+            {success && <p>{success}</p>}
             {error && <p>{error}</p>}
 
             <form onSubmit={handleSubmit}>
