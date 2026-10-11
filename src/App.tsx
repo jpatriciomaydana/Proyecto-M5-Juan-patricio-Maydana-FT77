@@ -2,6 +2,7 @@ import type { JSX } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import MainLayout from "./components/layout/MainLayout";
+import "./App.css";
 
 import Home from "./pages/customer/Home";
 import Login from "./pages/auth/Login";

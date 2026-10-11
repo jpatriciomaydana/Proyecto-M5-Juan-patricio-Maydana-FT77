@@ -1,184 +1,284 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+/* ========================================
+   IDENTIDAD VISUAL DE LA LIBRERÍA
+   ======================================== */
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+:root {
+  --color-cream: #f7f3ec;
+  --color-forest: #1f3528;
+  --color-forest-light: #2d4937;
+  --color-gold: #b58a4a;
+  --color-text: #292720;
+  --color-muted: #706d63;
+  --color-white: #ffffff;
 }
 
-.hero {
+/* ========================================
+   HOME — BASE (CELULARES)
+   ======================================== */
+
+.home {
+  color: var(--color-text);
+  background: var(--color-cream);
+}
+
+/* Portada principal */
+
+.home-hero {
   position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  align-items: flex-start;
+  gap: 44px;
+  padding: 64px 24px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 80% 40%,
+      rgba(181, 138, 74, 0.14),
+      transparent 32%),
+    var(--color-cream);
 }
 
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
-}
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
+.home-hero__content {
   position: relative;
+  z-index: 1;
   width: 100%;
+  max-width: 650px;
+}
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
+.home-hero__eyebrow,
+.home-intro__eyebrow {
+  margin: 0 0 20px;
+  color: var(--color-gold);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+}
+
+.home-hero h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(40px, 10vw, 58px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -1.5px;
+}
+
+.home-hero h1 span,
+.home-intro h2 span {
+  color: var(--color-forest);
+  font-style: italic;
+}
+
+.home-hero__description {
+  max-width: 470px;
+  margin: 24px 0 30px;
+  color: var(--color-muted);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.home-hero__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.home-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid var(--color-forest);
+  border-radius: 4px;
+  background: var(--color-forest);
+  color: var(--color-white);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.home-button:hover {
+  transform: translateY(-2px);
+  background: var(--color-forest-light);
+}
+
+.home-button--secondary {
+  background: transparent;
+  color: var(--color-forest);
+}
+
+.home-button--secondary:hover {
+  background: var(--color-forest);
+  color: var(--color-white);
+}
+
+.home-button:focus-visible,
+.home-intro__link:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+/* Detalle decorativo de la portada */
+
+.home-hero__decoration {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: min(65%, 250px);
+  aspect-ratio: 3 / 4;
+  border: 1px solid rgba(181, 138, 74, 0.55);
+  background:
+    linear-gradient(145deg,
+      rgba(255, 255, 255, 0.13),
+      transparent 55%),
+    var(--color-forest);
+  box-shadow: 18px 18px 0 rgba(31, 53, 40, 0.09);
+  transform: rotate(3deg);
+}
+
+.home-hero__decoration::before {
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(247, 243, 236, 0.3);
+  content: "";
+}
+
+.home-hero__decoration-label {
+  position: absolute;
+  top: 25%;
+  color: #e6d4b3;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 13px;
+  font-style: italic;
+  letter-spacing: 1px;
+}
+
+.home-hero__decoration-mark {
+  color: var(--color-cream);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(56px, 8vw, 100px);
+  letter-spacing: -7px;
+}
+
+/* Sección introductoria */
+
+.home-intro {
+  padding: 58px 24px 64px;
+  background: var(--color-white);
+  text-align: center;
+}
+
+.home-intro__eyebrow {
+  margin-bottom: 16px;
+}
+
+.home-intro h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(30px, 4vw, 46px);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.home-intro h2 br {
+  display: none;
+}
+
+.home-intro>p:not(.home-intro__eyebrow) {
+  max-width: 600px;
+  margin: 20px auto 24px;
+  color: var(--color-muted);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.home-intro__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-forest);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.home-intro__link:hover {
+  color: var(--color-gold);
+}
+
+/* ========================================
+   TABLET (desde 768 px)
+   ======================================== */
+
+@media (min-width: 768px) {
+  .home-hero {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+    min-height: 510px;
+    padding: 76px clamp(24px, 8vw, 120px);
   }
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
+  .home-hero h1 {
+    font-size: clamp(42px, 5.5vw, 72px);
+    letter-spacing: -2px;
   }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
+
+  .home-hero__description {
+    font-size: 16px;
+  }
+
+  .home-hero__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .home-button {
+    width: auto;
+  }
+
+  .home-hero__decoration {
+    align-self: auto;
+    width: clamp(200px, 25vw, 330px);
+  }
+
+  .home-intro {
+    padding: 76px 24px 88px;
+  }
+
+  .home-intro h2 br {
+    display: inline;
+  }
+}
+
+/* ========================================
+   ESCRITORIO (desde 1024 px)
+   ======================================== */
+
+@media (min-width: 1024px) {
+  .home-hero {
+    gap: 80px;
+    min-height: 560px;
+  }
+
+  .home-hero h1 {
+    font-size: clamp(56px, 5.5vw, 72px);
+  }
+
+  .home-hero__description {
+    margin: 28px 0 36px;
   }
 }
