@@ -9,9 +9,9 @@ export interface Product {
     categoryId: CategoryId;
     stock: number;
     imageUrl: string;
-    isbn: number;
+    isbn: string;
     publisher: string;
     publicationYear: number;
     firstEdition: boolean;
     createdAt: Date;
-}
+}        
