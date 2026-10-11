@@ -1,0 +1,74 @@
+/* ========================================
+   FOOTER — BASE (CELULARES)
+   ======================================== */
+
+.footer {
+    border-top: 3px solid var(--color-gold);
+    background: var(--color-forest);
+    color: var(--color-cream);
+}
+
+.footer__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 28px 24px;
+    text-align: center;
+}
+
+.footer__credits,
+.footer__copy {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.footer__credits strong {
+    font-weight: 600;
+}
+
+.footer__brand {
+    color: #e6d4b3;
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+}
+
+.footer__separator {
+    display: none;
+}
+
+.footer__copy {
+    color: rgba(247, 243, 236, 0.72);
+    font-size: 13px;
+}
+
+/* ========================================
+   TABLET (desde 768 px)
+   ======================================== */
+
+@media (min-width: 768px) {
+    .footer__inner {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 28px 48px;
+        text-align: left;
+    }
+
+    .footer__separator {
+        display: inline;
+    }
+}
+
+/* ========================================
+   ESCRITORIO (desde 1024 px)
+   ======================================== */
+
+@media (min-width: 1024px) {
+    .footer__inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 48px;
+    }
+}
