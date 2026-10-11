@@ -40,7 +40,7 @@ function Register() {
     }
 
     return (
-        <main>
+        <section>
             <h1>Crear cuenta</h1>
             <p>Registrate para comenzar a comprar.</p>
 
@@ -92,7 +92,7 @@ function Register() {
                     {loading ? "Creando cuenta..." : "Crear cuenta"}
                 </button>
             </form>
-        </main>
+        </section>
     );
 }
 

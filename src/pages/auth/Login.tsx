@@ -30,7 +30,7 @@ function Login() {
     }
 
     return (
-        <main>
+        <section>
             <h1>Iniciar sesión</h1>
             <p>Accedé a tu cuenta.</p>
 
@@ -65,7 +65,7 @@ function Login() {
                     {loading ? "Iniciando sesión..." : "Iniciar sesión"}
                 </button>
             </form>
-        </main>
+        </section>
     );
 }
 

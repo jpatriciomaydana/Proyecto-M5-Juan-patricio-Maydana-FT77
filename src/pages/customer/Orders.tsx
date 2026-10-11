@@ -1,9 +1,9 @@
 function Orders() {
     return (
-        <main>
+        <section>
             <h1>Mis pedidos</h1>
             <p>Acá vas a consultar tu historial de pedidos.</p>
-        </main>
+        </section>
     );
 }
 

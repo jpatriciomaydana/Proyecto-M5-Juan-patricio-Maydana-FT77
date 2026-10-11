@@ -1,9 +1,9 @@
 function Cart() {
     return (
-        <main>
+        <section>
             <h1>Carrito</h1>
             <p>Tu carrito de compras aparecerá acá.</p>
-        </main>
+        </section>
     );
 }
 
