@@ -121,6 +121,42 @@
     background: #2d4937;
 }
 
+/* Sesión iniciada: saludo y cierre de sesión */
+
+.navbar__greeting {
+    display: block;
+    min-width: 0;
+    padding: 12px 8px;
+    overflow: hidden;
+    color: #706d63;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.navbar__logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 1px solid #1f3528;
+    border-radius: 4px;
+    background: transparent;
+    color: #1f3528;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.navbar__logout:hover {
+    background: #1f3528;
+    color: #ffffff;
+}
+
 /* ========================================
    TABLET — desde 768 px
    ======================================== */
@@ -172,6 +208,17 @@
     }
 }
 
+.navbar__greeting {
+    max-width: 200px;
+    padding: 10px 4px;
+}
+
+.navbar__logout {
+    min-height: 40px;
+    padding: 8px 12px;
+    white-space: nowrap;
+}
+
 /* ========================================
    ESCRITORIO — desde 1024 px
    ======================================== */
@@ -212,7 +259,8 @@
 /* Accesibilidad: foco visible al navegar con teclado */
 
 .navbar a:focus-visible,
-.navbar__toggle:focus-visible {
+.navbar__toggle:focus-visible,
+.navbar__logout:focus-visible {
     outline: 2px solid #b58a4a;
     outline-offset: 3px;
 }

@@ -1,13 +1,30 @@
 import { useState } from "react";
 import type { JSX } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+
+import { useAuthContext } from "../../contexts/AuthContext";
 import "./Navbar.css";
 
 function Navbar(): JSX.Element {
     const [menuOpen, setMenuOpen] = useState(false);
+    const { user, profile, loading, logout } = useAuthContext();
+    const navigate = useNavigate();
+
+    const greetingName = profile?.displayName || user?.email;
 
     function closeMenu(): void {
         setMenuOpen(false);
+    }
+
+    async function handleLogout(): Promise<void> {
+        try {
+            await logout();
+            navigate("/");
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+        } finally {
+            closeMenu();
+        }
     }
 
     return (
@@ -76,23 +93,43 @@ function Navbar(): JSX.Element {
                         Mis pedidos
                     </NavLink>
 
-                    <div className="navbar__account">
-                        <NavLink
-                            to="/login"
-                            className="navbar__link"
-                            onClick={closeMenu}
-                        >
-                            Ingresar
-                        </NavLink>
+                    {!loading && (
+                        <div className="navbar__account">
+                            {user ? (
+                                <>
+                                    <span className="navbar__greeting">
+                                        Hola, {greetingName}
+                                    </span>
 
-                        <NavLink
-                            to="/registro"
-                            className="navbar__register"
-                            onClick={closeMenu}
-                        >
-                            Registrarse
-                        </NavLink>
-                    </div>
+                                    <button
+                                        type="button"
+                                        className="navbar__logout"
+                                        onClick={handleLogout}
+                                    >
+                                        Cerrar sesión
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <NavLink
+                                        to="/login"
+                                        className="navbar__link"
+                                        onClick={closeMenu}
+                                    >
+                                        Ingresar
+                                    </NavLink>
+
+                                    <NavLink
+                                        to="/registro"
+                                        className="navbar__register"
+                                        onClick={closeMenu}
+                                    >
+                                        Registrarse
+                                    </NavLink>
+                                </>
+                            )}
+                        </div>
+                    )}
                 </div>
             </nav>
         </header>
