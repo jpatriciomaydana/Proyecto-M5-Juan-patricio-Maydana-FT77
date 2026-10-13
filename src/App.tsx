@@ -1,8 +1,9 @@
 import type { JSX } from "react";
 import { Route, Routes } from "react-router-dom";
+import "./App.css";
 
 import MainLayout from "./components/layout/MainLayout";
-import "./App.css";
+import ProtectedRoute from "./routes/protectedRoute";
 
 import Home from "./pages/customer/Home";
 import Login from "./pages/auth/Login";
@@ -19,8 +20,11 @@ function App(): JSX.Element {
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Register />} />
         <Route path="/catalogo" element={<Catalog />} />
-        <Route path="/carrito" element={<Cart />} />
-        <Route path="/mis-pedidos" element={<Orders />} />
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/carrito" element={<Cart />} />
+          <Route path="/mis-pedidos" element={<Orders />} />
+        </Route>
       </Routes>
     </MainLayout>
   );
