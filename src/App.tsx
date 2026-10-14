@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import "./App.css";
 
 import MainLayout from "./components/layout/MainLayout";
+import AdminLayout from "./components/layout/AdminLayout";
 import ProtectedRoute from "./routes/protectedRoute";
 import AdminRoute from "./routes/AdminRoute";
 
@@ -27,8 +28,10 @@ function App(): JSX.Element {
           <Route path="/carrito" element={<Cart />} />
           <Route path="/mis-pedidos" element={<Orders />} />
         </Route>
+      </Route>
 
-        <Route element={<AdminRoute />}>
+      <Route element={<AdminRoute />}>
+        <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
         </Route>
       </Route>
