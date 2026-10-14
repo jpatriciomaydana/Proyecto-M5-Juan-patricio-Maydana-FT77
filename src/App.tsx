@@ -11,6 +11,7 @@ import Home from "./pages/customer/Home";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import Catalog from "./pages/customer/Catalog";
+import ProductDetail from "./pages/customer/ProductDetail";
 import Cart from "./pages/customer/Cart";
 import Orders from "./pages/customer/Orders";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -23,6 +24,7 @@ function App(): JSX.Element {
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Register />} />
         <Route path="/catalogo" element={<Catalog />} />
+        <Route path="/catalogo/:id" element={<ProductDetail />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/carrito" element={<Cart />} />

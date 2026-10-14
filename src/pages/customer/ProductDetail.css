@@ -1,0 +1,184 @@
+/* ========================================
+   DETALLE DE PRODUCTO — MOBILE FIRST
+   ======================================== */
+
+.detail {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+}
+
+.detail__back {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: #8c6734;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.detail__back:hover {
+    text-decoration: underline;
+}
+
+.detail__layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-top: 8px;
+}
+
+.detail__media {
+    width: 100%;
+    max-width: 320px;
+    aspect-ratio: 2 / 3;
+    margin: 0 auto;
+    overflow: hidden;
+    border: 1px solid #e6dfd2;
+    border-radius: 6px;
+    background: #f7f3ec;
+}
+
+.detail__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.detail__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    color: #1f3528;
+    font-family: Georgia, serif;
+    font-size: 20px;
+    text-align: center;
+}
+
+.detail__info {
+    min-width: 0;
+}
+
+.detail__category {
+    margin: 0 0 4px;
+    color: #8c6734;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.detail__title {
+    margin: 0;
+    color: #1f3528;
+    font-family: Georgia, serif;
+    font-size: 28px;
+    line-height: 1.2;
+}
+
+.detail__author {
+    margin: 4px 0 0;
+    color: #706d63;
+    font-size: 16px;
+}
+
+.detail__badge {
+    display: inline-block;
+    margin: 12px 0 0;
+    padding: 4px 8px;
+    border-radius: 3px;
+    background: #b58a4a;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.detail__price {
+    margin: 16px 0 0;
+    color: #8c6734;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.detail__stock {
+    margin: 4px 0 0;
+    color: #706d63;
+    font-size: 14px;
+}
+
+.detail__description {
+    margin: 20px 0 0;
+    color: #292720;
+    line-height: 1.6;
+}
+
+.detail__data {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 16px;
+    margin: 24px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid #e6dfd2;
+    font-size: 14px;
+}
+
+.detail__data dt {
+    color: #706d63;
+    font-weight: 600;
+}
+
+.detail__data dd {
+    margin: 0;
+    color: #292720;
+    overflow-wrap: anywhere;
+}
+
+.detail__back:focus-visible {
+    outline: 2px solid #b58a4a;
+    outline-offset: 3px;
+}
+
+/* ========================================
+   TABLET — desde 768 px
+   ======================================== */
+
+@media (min-width: 768px) {
+    .detail {
+        padding: 32px 32px 56px;
+    }
+
+    .detail__layout {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 40px;
+    }
+
+    .detail__media {
+        flex-shrink: 0;
+        width: 300px;
+        margin: 0;
+    }
+
+    .detail__title {
+        font-size: 34px;
+    }
+}
+
+/* ========================================
+   ESCRITORIO — desde 1024 px
+   ======================================== */
+
+@media (min-width: 1024px) {
+    .detail {
+        padding: 40px 48px 64px;
+    }
+
+    .detail__media {
+        width: 360px;
+    }
+}
