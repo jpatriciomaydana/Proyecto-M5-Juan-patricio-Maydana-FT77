@@ -3,6 +3,7 @@ import {
     getDocs,
     orderBy,
     query,
+    Timestamp,
 } from "firebase/firestore";
 
 import { db } from "./firebase";
@@ -17,9 +18,18 @@ export async function getProducts(): Promise<Product[]> {
 
     const snapshot = await getDocs(productsQuery);
 
-    return snapshot.docs.map((document) => ({
-        ...document.data(),
-        id: document.id,
-    })) as Product[];
-}
+    return snapshot.docs.map((document) => {
+        const data = document.data();
 
+        const createdAt =
+            data.createdAt instanceof Timestamp
+                ? data.createdAt.toDate()
+                : new Date(0);
+
+        return {
+            ...(data as Omit<Product, "id" | "createdAt">),
+            id: document.id,
+            createdAt,
+        };
+    });
+}
