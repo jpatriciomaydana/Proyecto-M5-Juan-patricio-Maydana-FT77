@@ -7,7 +7,7 @@ import "./Navbar.css";
 
 function Navbar(): JSX.Element {
     const [menuOpen, setMenuOpen] = useState(false);
-    const { user, profile, loading, logout } = useAuthContext();
+    const { user, profile, role, loading, logout } = useAuthContext();
     const navigate = useNavigate();
 
     const greetingName = profile?.displayName || user?.email;
@@ -92,6 +92,16 @@ function Navbar(): JSX.Element {
                     >
                         Mis pedidos
                     </NavLink>
+
+                    {role === "admin" && (
+                        <NavLink
+                            to="/admin"
+                            className="navbar__link"
+                            onClick={closeMenu}
+                        >
+                            Admin
+                        </NavLink>
+                    )}
 
                     {!loading && (
                         <div className="navbar__account">
