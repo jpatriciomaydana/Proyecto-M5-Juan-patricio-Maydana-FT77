@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
+import type { JSX } from "react";
+
+import ProductCard from "../../components/products/ProductCard";
 import { getProducts } from "../../services/productService";
 import type { Product } from "../../types/product";
+import "./Catalog.css";
 
-function Catalog() {
+function Catalog(): JSX.Element {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -25,38 +29,38 @@ function Catalog() {
 
     if (loading) {
         return (
-            <section>
-                <h1>Catálogo</h1>
-                <p>Cargando libros...</p>
+            <section className="catalog">
+                <h1 className="catalog__title">Catálogo</h1>
+                <p className="catalog__intro">Cargando libros...</p>
             </section>
         );
     }
 
     if (error) {
         return (
-            <section>
-                <h1>Catálogo</h1>
-                <p role="alert">{error}</p>
+            <section className="catalog">
+                <h1 className="catalog__title">Catálogo</h1>
+                <p role="alert" className="catalog__intro">
+                    {error}
+                </p>
             </section>
         );
     }
 
     return (
-        <section>
-            <h1>Catálogo</h1>
-            <p>Acá vas a encontrar nuestros libros.</p>
+        <section className="catalog">
+            <h1 className="catalog__title">Catálogo</h1>
+            <p className="catalog__intro">Acá vas a encontrar nuestros libros.</p>
 
             {products.length === 0 ? (
-                <p>Todavía no hay libros disponibles.</p>
+                <p className="catalog__intro">
+                    Todavía no hay libros disponibles.
+                </p>
             ) : (
-                <ul>
+                <ul className="catalog__grid">
                     {products.map((product) => (
                         <li key={product.id}>
-                            <h2>{product.title}</h2>
-                            <p>Autor: {product.author}</p>
-                            <p>Precio: ${product.price}</p>
-                            <p>Categoría: {product.categoryId}</p>
-                            <p>Stock disponible: {product.stock}</p>
+                            <ProductCard product={product} />
                         </li>
                     ))}
                 </ul>

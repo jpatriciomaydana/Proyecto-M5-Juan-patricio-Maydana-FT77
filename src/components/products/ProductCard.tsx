@@ -1,0 +1,64 @@
+import { useState } from "react";
+import type { JSX } from "react";
+
+import type { Product } from "../../types/product";
+import "./ProductCard.css";
+
+interface ProductCardProps {
+    product: Product;
+}
+
+const priceFormatter = new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+});
+
+function ProductCard({ product }: ProductCardProps): JSX.Element {
+    const [imageFailed, setImageFailed] = useState(false);
+
+    const hasImage = product.imageUrl.trim() !== "" && !imageFailed;
+    const outOfStock = product.stock <= 0;
+
+    return (
+        <article
+            className={`product-card ${outOfStock ? "product-card--out" : ""}`}
+        >
+            <div className="product-card__media">
+                {hasImage ? (
+                    <img
+                        src={product.imageUrl}
+                        alt={`Portada de ${product.title}`}
+                        className="product-card__image"
+                        loading="lazy"
+                        onError={() => setImageFailed(true)}
+                    />
+                ) : (
+                    <div className="product-card__placeholder" aria-hidden="true">
+                        <span>{product.title}</span>
+                    </div>
+                )}
+
+                {product.firstEdition && (
+                    <span className="product-card__badge">Primera edición</span>
+                )}
+            </div>
+
+            <div className="product-card__body">
+                <h2 className="product-card__title">{product.title}</h2>
+                <p className="product-card__author">{product.author}</p>
+                <p className="product-card__category">{product.categoryId}</p>
+
+                <div className="product-card__footer">
+                    <p className="product-card__price">
+                        {priceFormatter.format(product.price)}
+                    </p>
+                    <p className="product-card__stock">
+                        {outOfStock ? "Sin stock" : `Stock: ${product.stock}`}
+                    </p>
+                </div>
+            </div>
+        </article>
+    );
+}
+
+export default ProductCard;

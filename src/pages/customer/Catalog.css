@@ -1,0 +1,55 @@
+/* ========================================
+   CATÁLOGO — MOBILE FIRST
+   ======================================== */
+
+.catalog {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+}
+
+.catalog__title {
+    margin: 0 0 8px;
+    color: #1f3528;
+    font-family: Georgia, serif;
+    font-size: 28px;
+}
+
+.catalog__intro {
+    margin: 0 0 24px;
+    color: #706d63;
+}
+
+.catalog__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+@media (min-width: 768px) {
+    .catalog {
+        padding: 32px 32px 56px;
+    }
+
+    .catalog__title {
+        font-size: 34px;
+    }
+
+    .catalog__grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .catalog {
+        padding: 40px 48px 64px;
+    }
+
+    .catalog__grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
