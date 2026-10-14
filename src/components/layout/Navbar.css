@@ -206,17 +206,18 @@
         padding: 8px 12px;
         white-space: nowrap;
     }
-}
 
-.navbar__greeting {
-    max-width: 200px;
-    padding: 10px 4px;
-}
 
-.navbar__logout {
-    min-height: 40px;
-    padding: 8px 12px;
-    white-space: nowrap;
+    .navbar__greeting {
+        max-width: 200px;
+        padding: 10px 4px;
+    }
+
+    .navbar__logout {
+        min-height: 40px;
+        padding: 8px 12px;
+        white-space: nowrap;
+    }
 }
 
 /* ========================================
