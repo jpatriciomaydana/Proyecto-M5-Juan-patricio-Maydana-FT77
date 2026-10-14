@@ -22,8 +22,8 @@
 
 .catalog__grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -39,7 +39,7 @@
     }
 
     .catalog__grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 24px;
     }
 }
