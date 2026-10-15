@@ -3,6 +3,7 @@
    ======================================== */
 
 .product-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -124,4 +125,32 @@
     .product-card__title {
         font-size: 18px;
     }
+}
+
+/* Enlace al detalle: el área clickeable cubre toda la tarjeta */
+
+.product-card__link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.product-card__link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.product-card__link:hover {
+    text-decoration: underline;
+}
+
+/* Foco visible con teclado: se marca toda la tarjeta */
+
+.product-card__link:focus-visible {
+    outline: none;
+}
+
+.product-card:has(.product-card__link:focus-visible) {
+    outline: 2px solid #b58a4a;
+    outline-offset: 3px;
 }

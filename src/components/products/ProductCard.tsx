@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { JSX } from "react";
+import { Link } from "react-router-dom";
 
 import type { Product } from "../../types/product";
 import "./ProductCard.css";
@@ -44,7 +45,14 @@ function ProductCard({ product }: ProductCardProps): JSX.Element {
             </div>
 
             <div className="product-card__body">
-                <h2 className="product-card__title">{product.title}</h2>
+                <h2 className="product-card__title">
+                    <Link
+                        to={`/catalogo/${product.id}`}
+                        className="product-card__link"
+                    >
+                        {product.title}
+                    </Link>
+                </h2>
                 <p className="product-card__author">{product.author}</p>
                 <p className="product-card__category">{product.categoryId}</p>
 
