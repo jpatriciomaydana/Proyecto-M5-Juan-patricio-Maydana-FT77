@@ -25,3 +25,6 @@ dist-ssr
 
 # Variables de entorno
 .env
+# Claves de servicio de Firebase/Google (secretos)
+serviceAccount*.json
+*-firebase-adminsdk-*.json
