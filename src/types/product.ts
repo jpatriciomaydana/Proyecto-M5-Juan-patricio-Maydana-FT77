@@ -1,4 +1,4 @@
-export type CategoryId = "Terror" | "Novela" | "Fantasía" | "Ciencia Ficción" | "clasicos";
+export type CategoryId = "Terror" | "Novela" | "Fantasía" | "Ciencia Ficción" | "Clásicos";
 
 export interface Product {
     id: string;
@@ -14,4 +14,4 @@ export interface Product {
     publicationYear: number;
     firstEdition: boolean;
     createdAt: Date;
-}        
+}       
