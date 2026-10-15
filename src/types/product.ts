@@ -14,4 +14,8 @@ export interface Product {
     publicationYear: number;
     firstEdition: boolean;
     createdAt: Date;
-}       
+}
+
+// Datos que carga el formulario de administración: todo menos lo que
+// asigna el sistema (el id lo genera Firestore y createdAt el servidor).
+export type ProductInput = Omit<Product, "id" | "createdAt">;
