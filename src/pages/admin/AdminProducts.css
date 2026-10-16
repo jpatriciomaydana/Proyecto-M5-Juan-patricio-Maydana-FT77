@@ -1,0 +1,143 @@
+/* Mobile First: estos estilos son los del celular. */
+
+.admin-products {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.admin-products__title {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.5rem;
+    color: #1f3528;
+}
+
+.admin-products__count {
+    margin: 0;
+    color: #706d63;
+}
+
+.admin-products__message {
+    margin: 0;
+    color: #292720;
+}
+
+.admin-products__message--error {
+    color: #8a2d2d;
+}
+
+.admin-products__table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #292720;
+}
+
+/* El encabezado se oculta visualmente en celular, pero sigue disponible
+   para lectores de pantalla. */
+.admin-products__table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* En celular cada fila es una tarjeta. */
+.admin-products__table tbody tr {
+    display: block;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: #ffffff;
+    border: 1px solid #e4dccb;
+    border-radius: 8px;
+}
+
+.admin-products__table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.35rem 0;
+    overflow-wrap: anywhere;
+}
+
+.admin-products__table td[data-label]::before {
+    content: attr(data-label);
+    color: #706d63;
+    font-size: 0.875rem;
+}
+
+.admin-products__cell-title {
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.admin-products__book-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    color: #1f3528;
+}
+
+.admin-products__book-author {
+    font-size: 0.875rem;
+    color: #706d63;
+}
+
+.admin-products__stock--empty {
+    font-weight: 600;
+    color: #8a2d2d;
+}
+
+/* Tablet y escritorio: la tarjeta vuelve a ser una tabla. */
+@media (min-width: 768px) {
+    .admin-products__title {
+        font-size: 1.875rem;
+    }
+
+    .admin-products__table thead {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        clip: auto;
+        white-space: normal;
+    }
+
+    .admin-products__table th {
+        padding: 0.75rem;
+        text-align: left;
+        font-size: 0.875rem;
+        color: #706d63;
+        border-bottom: 2px solid #b58a4a;
+    }
+
+    .admin-products__table tbody tr {
+        display: table-row;
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+    }
+
+    .admin-products__table td {
+        display: table-cell;
+        padding: 0.75rem;
+        border-bottom: 1px solid #e4dccb;
+        vertical-align: top;
+    }
+
+    .admin-products__table td[data-label]::before {
+        display: none;
+    }
+
+    .admin-products__cell-title {
+        display: table-cell;
+    }
+
+    .admin-products__book-title,
+    .admin-products__book-author {
+        display: block;
+    }
+}

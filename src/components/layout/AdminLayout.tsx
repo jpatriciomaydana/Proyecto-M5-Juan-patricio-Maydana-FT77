@@ -16,6 +16,13 @@ function AdminLayout(): JSX.Element {
                         Panel
                     </NavLink>
 
+                    <NavLink
+                        to="/admin/productos"
+                        className="admin-sidebar__link"
+                    >
+                        Productos
+                    </NavLink>
+
                     <Link to="/" className="admin-sidebar__link">
                         Volver a la tienda
                     </Link>

@@ -15,6 +15,7 @@ import ProductDetail from "./pages/customer/ProductDetail";
 import Cart from "./pages/customer/Cart";
 import Orders from "./pages/customer/Orders";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminProducts from "./pages/admin/AdminProducts";
 
 function App(): JSX.Element {
   return (
@@ -35,6 +36,7 @@ function App(): JSX.Element {
       <Route element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/productos" element={<AdminProducts />} />
         </Route>
       </Route>
     </Routes>
