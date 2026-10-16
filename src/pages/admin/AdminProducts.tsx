@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { JSX } from "react";
+import { Link } from "react-router-dom";
 
 import { getProducts } from "../../services/productService";
 import type { Product } from "../../types/product";
@@ -49,7 +50,16 @@ function AdminProducts(): JSX.Element {
 
     return (
         <section className="admin-products">
-            <h1 className="admin-products__title">Productos</h1>
+            <div className="admin-products__header">
+                <h1 className="admin-products__title">Productos</h1>
+
+                <Link
+                    to="/admin/productos/nuevo"
+                    className="admin-products__new"
+                >
+                    Nuevo producto
+                </Link>
+            </div>
 
             {loading && (
                 <p className="admin-products__message" role="status">
@@ -89,6 +99,7 @@ function AdminProducts(): JSX.Element {
                                 <th scope="col">Categoría</th>
                                 <th scope="col">Precio</th>
                                 <th scope="col">Stock</th>
+                                <th scope="col">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -116,6 +127,15 @@ function AdminProducts(): JSX.Element {
                                                 Sin stock
                                             </span>
                                         )}
+                                    </td>
+                                    <td className="admin-products__cell-actions">
+                                        <Link
+                                            to={`/admin/productos/${product.id}/editar`}
+                                            className="admin-products__edit"
+                                            aria-label={`Editar ${product.title}`}
+                                        >
+                                            Editar
+                                        </Link>
                                     </td>
                                 </tr>
                             ))}

@@ -1,0 +1,517 @@
+import { useEffect, useState } from "react";
+import type { ChangeEvent, FormEvent, JSX, ReactNode } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+
+import {
+    createProduct,
+    getProductById,
+    updateProduct,
+} from "../../services/productService";
+import type { CategoryId, Product, ProductInput } from "../../types/product";
+import "./AdminProductForm.css";
+
+const CATEGORIES: CategoryId[] = [
+    "Terror",
+    "Novela",
+    "Fantasía",
+    "Ciencia Ficción",
+    "Clásicos",
+];
+
+// Mientras se escribe, todo es texto. Se convierte a número al validar.
+interface FormValues {
+    title: string;
+    author: string;
+    description: string;
+    price: string;
+    categoryId: string;
+    stock: string;
+    imageUrl: string;
+    isbn: string;
+    publisher: string;
+    publicationYear: string;
+    firstEdition: boolean;
+}
+
+type FormErrors = Partial<Record<keyof FormValues, string>>;
+type LoadStatus = "loading" | "ready" | "not-found" | "error";
+
+const EMPTY_VALUES: FormValues = {
+    title: "",
+    author: "",
+    description: "",
+    price: "",
+    categoryId: "",
+    stock: "",
+    imageUrl: "",
+    isbn: "",
+    publisher: "",
+    publicationYear: "",
+    firstEdition: false,
+};
+
+function isCategoryId(value: string): value is CategoryId {
+    return (CATEGORIES as string[]).includes(value);
+}
+
+function isHttpUrl(value: string): boolean {
+    try {
+        const url = new URL(value);
+        return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+        return false;
+    }
+}
+
+function toFormValues(product: Product): FormValues {
+    return {
+        title: product.title,
+        author: product.author,
+        description: product.description,
+        price: String(product.price),
+        categoryId: product.categoryId,
+        stock: String(product.stock),
+        imageUrl: product.imageUrl,
+        isbn: product.isbn,
+        publisher: product.publisher,
+        publicationYear: String(product.publicationYear),
+        firstEdition: product.firstEdition,
+    };
+}
+
+// Valida los textos del formulario. Si todo está bien, devuelve el
+// ProductInput ya convertido (números reales, textos sin espacios sobrantes).
+function parseForm(values: FormValues): {
+    errors: FormErrors;
+    input: ProductInput | null;
+} {
+    const errors: FormErrors = {};
+
+    const title = values.title.trim();
+    const author = values.author.trim();
+    const description = values.description.trim();
+    const publisher = values.publisher.trim();
+    const isbn = values.isbn.trim();
+    const imageUrl = values.imageUrl.trim();
+    const categoryId = values.categoryId;
+
+    const price = Number(values.price);
+    const stock = Number(values.stock);
+    const publicationYear = Number(values.publicationYear);
+    const currentYear = new Date().getFullYear();
+
+    if (!title) errors.title = "Ingresá el título.";
+    if (!author) errors.author = "Ingresá el autor.";
+    if (!description) errors.description = "Ingresá una descripción.";
+    if (!publisher) errors.publisher = "Ingresá la editorial.";
+    if (!isbn) errors.isbn = "Ingresá el ISBN.";
+
+    if (!isCategoryId(categoryId)) {
+        errors.categoryId = "Elegí una categoría.";
+    }
+
+    if (values.price.trim() === "" || !Number.isFinite(price) || price <= 0) {
+        errors.price = "Ingresá un precio mayor a 0.";
+    }
+
+    if (values.stock.trim() === "" || !Number.isInteger(stock) || stock < 0) {
+        errors.stock = "Ingresá un stock entero, de 0 o más.";
+    }
+
+    if (
+        values.publicationYear.trim() === "" ||
+        !Number.isInteger(publicationYear) ||
+        publicationYear > currentYear
+    ) {
+        errors.publicationYear = `Ingresá un año entero, hasta ${currentYear}.`;
+    }
+
+    if (imageUrl !== "" && !isHttpUrl(imageUrl)) {
+        errors.imageUrl =
+            "Ingresá una URL válida que empiece con http:// o https://.";
+    }
+
+    if (Object.keys(errors).length > 0 || !isCategoryId(categoryId)) {
+        return { errors, input: null };
+    }
+
+    return {
+        errors,
+        input: {
+            title,
+            author,
+            description,
+            price,
+            categoryId,
+            stock,
+            imageUrl,
+            isbn,
+            publisher,
+            publicationYear,
+            firstEdition: values.firstEdition,
+        },
+    };
+}
+
+function getSaveErrorMessage(error: unknown): string {
+    if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === "permission-denied"
+    ) {
+        return "No tenés permisos para guardar productos. Verificá que tu cuenta sea de administrador.";
+    }
+
+    return "No pudimos guardar el producto. Intentá de nuevo en unos minutos.";
+}
+
+interface FieldProps {
+    id: string;
+    label: string;
+    error?: string;
+    children: ReactNode;
+}
+
+function Field({ id, label, error, children }: FieldProps): JSX.Element {
+    return (
+        <div className="product-form__field">
+            <label htmlFor={id} className="product-form__label">
+                {label}
+            </label>
+            {children}
+            {error && (
+                <p id={`${id}-error`} className="product-form__error">
+                    {error}
+                </p>
+            )}
+        </div>
+    );
+}
+
+function AdminProductForm(): JSX.Element {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const isEditing = id !== undefined;
+
+    const [values, setValues] = useState<FormValues>(EMPTY_VALUES);
+    const [errors, setErrors] = useState<FormErrors>({});
+    const [status, setStatus] = useState<LoadStatus>(
+        isEditing ? "loading" : "ready"
+    );
+    const [saving, setSaving] = useState<boolean>(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+
+    // Solo en modo edición: trae el producto y rellena los campos.
+    useEffect(() => {
+        if (!id) {
+            return;
+        }
+
+        let cancelled = false;
+
+        getProductById(id)
+            .then((product) => {
+                if (cancelled) return;
+
+                if (!product) {
+                    setStatus("not-found");
+                    return;
+                }
+
+                setValues(toFormValues(product));
+                setStatus("ready");
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setStatus("error");
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [id]);
+
+    function handleChange(
+        event: ChangeEvent<
+            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >
+    ): void {
+        const { name, value } = event.target;
+
+        setValues((previous) => ({ ...previous, [name]: value }));
+        setErrors((previous) => ({ ...previous, [name]: undefined }));
+    }
+
+    function handleCheckbox(event: ChangeEvent<HTMLInputElement>): void {
+        const { checked } = event.target;
+
+        setValues((previous) => ({ ...previous, firstEdition: checked }));
+    }
+
+    async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
+        event.preventDefault();
+        setSubmitError(null);
+
+        const { errors: foundErrors, input } = parseForm(values);
+        setErrors(foundErrors);
+
+        if (!input) {
+            return;
+        }
+
+        setSaving(true);
+
+        try {
+            if (id) {
+                await updateProduct(id, input);
+            } else {
+                await createProduct(input);
+            }
+
+            navigate("/admin/productos");
+        } catch (error) {
+            setSubmitError(getSaveErrorMessage(error));
+            setSaving(false);
+        }
+    }
+
+    // Atributos de accesibilidad para marcar un campo con error.
+    function fieldProps(name: keyof FormValues): {
+        "aria-invalid"?: true;
+        "aria-describedby"?: string;
+    } {
+        return errors[name]
+            ? { "aria-invalid": true, "aria-describedby": `${name}-error` }
+            : {};
+    }
+
+    if (status === "loading") {
+        return (
+            <section className="product-form">
+                <p className="product-form__message" role="status">
+                    Cargando producto...
+                </p>
+            </section>
+        );
+    }
+
+    if (status === "not-found" || status === "error") {
+        return (
+            <section className="product-form">
+                <p
+                    className="product-form__message product-form__message--error"
+                    role="alert"
+                >
+                    {status === "not-found"
+                        ? "No encontramos el producto que querés editar."
+                        : "No pudimos cargar el producto. Intentá de nuevo en unos minutos."}
+                </p>
+                <Link to="/admin/productos" className="product-form__link">
+                    Volver al listado
+                </Link>
+            </section>
+        );
+    }
+
+    return (
+        <section className="product-form">
+            <h1 className="product-form__title">
+                {isEditing ? "Editar producto" : "Nuevo producto"}
+            </h1>
+
+            <form className="product-form__form" onSubmit={handleSubmit} noValidate>
+                <Field id="title" label="Título" error={errors.title}>
+                    <input
+                        id="title"
+                        name="title"
+                        type="text"
+                        className="product-form__input"
+                        value={values.title}
+                        onChange={handleChange}
+                        autoComplete="off"
+                        {...fieldProps("title")}
+                    />
+                </Field>
+
+                <Field id="author" label="Autor" error={errors.author}>
+                    <input
+                        id="author"
+                        name="author"
+                        type="text"
+                        className="product-form__input"
+                        value={values.author}
+                        onChange={handleChange}
+                        autoComplete="off"
+                        {...fieldProps("author")}
+                    />
+                </Field>
+
+                <Field
+                    id="description"
+                    label="Descripción"
+                    error={errors.description}
+                >
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows={4}
+                        className="product-form__input product-form__textarea"
+                        value={values.description}
+                        onChange={handleChange}
+                        {...fieldProps("description")}
+                    />
+                </Field>
+
+                <Field id="categoryId" label="Categoría" error={errors.categoryId}>
+                    <select
+                        id="categoryId"
+                        name="categoryId"
+                        className="product-form__input"
+                        value={values.categoryId}
+                        onChange={handleChange}
+                        {...fieldProps("categoryId")}
+                    >
+                        <option value="">Elegí una categoría</option>
+                        {CATEGORIES.map((category) => (
+                            <option key={category} value={category}>
+                                {category}
+                            </option>
+                        ))}
+                    </select>
+                </Field>
+
+                <div className="product-form__row">
+                    <Field id="price" label="Precio (ARS)" error={errors.price}>
+                        <input
+                            id="price"
+                            name="price"
+                            type="number"
+                            step="any"
+                            inputMode="decimal"
+                            className="product-form__input"
+                            value={values.price}
+                            onChange={handleChange}
+                            {...fieldProps("price")}
+                        />
+                    </Field>
+
+                    <Field id="stock" label="Stock" error={errors.stock}>
+                        <input
+                            id="stock"
+                            name="stock"
+                            type="number"
+                            step="1"
+                            inputMode="numeric"
+                            className="product-form__input"
+                            value={values.stock}
+                            onChange={handleChange}
+                            {...fieldProps("stock")}
+                        />
+                    </Field>
+                </div>
+
+                <div className="product-form__row">
+                    <Field id="isbn" label="ISBN" error={errors.isbn}>
+                        <input
+                            id="isbn"
+                            name="isbn"
+                            type="text"
+                            className="product-form__input"
+                            value={values.isbn}
+                            onChange={handleChange}
+                            autoComplete="off"
+                            {...fieldProps("isbn")}
+                        />
+                    </Field>
+
+                    <Field
+                        id="publicationYear"
+                        label="Año de publicación"
+                        error={errors.publicationYear}
+                    >
+                        <input
+                            id="publicationYear"
+                            name="publicationYear"
+                            type="number"
+                            step="1"
+                            inputMode="numeric"
+                            className="product-form__input"
+                            value={values.publicationYear}
+                            onChange={handleChange}
+                            {...fieldProps("publicationYear")}
+                        />
+                    </Field>
+                </div>
+
+                <Field id="publisher" label="Editorial" error={errors.publisher}>
+                    <input
+                        id="publisher"
+                        name="publisher"
+                        type="text"
+                        className="product-form__input"
+                        value={values.publisher}
+                        onChange={handleChange}
+                        autoComplete="off"
+                        {...fieldProps("publisher")}
+                    />
+                </Field>
+
+                <Field
+                    id="imageUrl"
+                    label="URL de la imagen (opcional)"
+                    error={errors.imageUrl}
+                >
+                    <input
+                        id="imageUrl"
+                        name="imageUrl"
+                        type="text"
+                        inputMode="url"
+                        className="product-form__input"
+                        value={values.imageUrl}
+                        onChange={handleChange}
+                        autoComplete="off"
+                        {...fieldProps("imageUrl")}
+                    />
+                </Field>
+
+                <label className="product-form__checkbox">
+                    <input
+                        type="checkbox"
+                        name="firstEdition"
+                        checked={values.firstEdition}
+                        onChange={handleCheckbox}
+                    />
+                    Primera edición
+                </label>
+
+                {submitError && (
+                    <p className="product-form__submit-error" role="alert">
+                        {submitError}
+                    </p>
+                )}
+
+                <div className="product-form__actions">
+                    <button
+                        type="submit"
+                        className="product-form__button"
+                        disabled={saving}
+                    >
+                        {saving
+                            ? "Guardando..."
+                            : isEditing
+                                ? "Guardar cambios"
+                                : "Crear producto"}
+                    </button>
+
+                    <Link to="/admin/productos" className="product-form__cancel">
+                        Cancelar
+                    </Link>
+                </div>
+            </form>
+        </section>
+    );
+}
+
+export default AdminProductForm;

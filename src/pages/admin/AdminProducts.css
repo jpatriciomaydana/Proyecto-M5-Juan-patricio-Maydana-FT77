@@ -141,3 +141,66 @@
         display: block;
     }
 }
+
+/* ---- Cabecera con botón "Nuevo producto" y acciones por fila ---- */
+
+.admin-products__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.admin-products__new,
+.admin-products__edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 1.25rem;
+    border-radius: 4px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.admin-products__new {
+    color: #ffffff;
+    background: #1f3528;
+    border: 1px solid #1f3528;
+}
+
+.admin-products__new:hover {
+    background: #2d4937;
+}
+
+.admin-products__edit {
+    color: #1f3528;
+    border: 1px solid #1f3528;
+}
+
+.admin-products__edit:hover {
+    color: #ffffff;
+    background: #1f3528;
+}
+
+.admin-products__new:focus-visible,
+.admin-products__edit:focus-visible {
+    outline: 3px solid #b58a4a;
+    outline-offset: 3px;
+}
+
+.admin-products__table .admin-products__cell-actions {
+    justify-content: flex-start;
+}
+
+@media (min-width: 768px) {
+    .admin-products__header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .admin-products__edit {
+        min-height: 36px;
+        padding: 0 0.9rem;
+    }
+}

@@ -16,6 +16,7 @@ import Cart from "./pages/customer/Cart";
 import Orders from "./pages/customer/Orders";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
+import AdminProductForm from "./pages/admin/AdminProductForm";
 
 function App(): JSX.Element {
   return (
@@ -37,6 +38,14 @@ function App(): JSX.Element {
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/productos" element={<AdminProducts />} />
+          <Route
+            path="/admin/productos/nuevo"
+            element={<AdminProductForm />}
+          />
+          <Route
+            path="/admin/productos/:id/editar"
+            element={<AdminProductForm />}
+          />
         </Route>
       </Route>
     </Routes>
