@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 
 import { getProductById } from "../../services/productService";
 import type { Product } from "../../types/product";
+import AddToCartButton from "../../components/cart/AddToCartButton";
 import "./ProductDetail.css";
 
 const priceFormatter = new Intl.NumberFormat("es-AR", {
@@ -125,6 +126,8 @@ function ProductDetail(): JSX.Element {
                             ? "Sin stock"
                             : `Stock disponible: ${product.stock}`}
                     </p>
+
+                    <AddToCartButton product={product} />
 
                     <p className="detail__description">{product.description}</p>
 

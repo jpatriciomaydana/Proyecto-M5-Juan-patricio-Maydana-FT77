@@ -22,7 +22,7 @@
 
 .catalog__grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     margin: 0;
     padding: 0;
@@ -39,7 +39,7 @@
     }
 
     .catalog__grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 24px;
     }
 }
@@ -50,6 +50,12 @@
     }
 
     .catalog__grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
+}
+
+/* Cada <li> es un contenedor grid: así la tarjeta (article)
+   se estira al alto de la fila y las tarjetas quedan parejas. */
+.catalog__grid>li {
+    display: grid;
 }

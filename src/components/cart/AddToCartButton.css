@@ -1,0 +1,64 @@
+/* ========================================
+   BOTÓN AGREGAR AL CARRITO — MOBILE FIRST
+   ======================================== */
+
+.add-to-cart {
+    /* Por encima del enlace que cubre toda la tarjeta (ProductCard) */
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 12px;
+    padding: 8px 10px;
+    border: 1px solid #1f3528;
+    border-radius: 4px;
+    background: #1f3528;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.add-to-cart:hover:not(:disabled) {
+    background: #2d4937;
+}
+
+.add-to-cart:focus-visible {
+    outline: 2px solid #b58a4a;
+    outline-offset: 2px;
+}
+
+.add-to-cart:disabled {
+    border-color: #e6dfd2;
+    background: #e6dfd2;
+    color: #706d63;
+    cursor: not-allowed;
+}
+
+/* Texto solo para lectores de pantalla */
+.add-to-cart__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* ========================================
+   TABLET — desde 768 px
+   ======================================== */
+
+@media (min-width: 768px) {
+    .add-to-cart {
+        font-size: 15px;
+    }
+}

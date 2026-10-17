@@ -3,6 +3,7 @@ import type { JSX } from "react";
 import { Link } from "react-router-dom";
 
 import type { Product } from "../../types/product";
+import AddToCartButton from "../cart/AddToCartButton";
 import "./ProductCard.css";
 
 interface ProductCardProps {
@@ -64,6 +65,8 @@ function ProductCard({ product }: ProductCardProps): JSX.Element {
                         {outOfStock ? "Sin stock" : `Stock: ${product.stock}`}
                     </p>
                 </div>
+
+                <AddToCartButton product={product} />
             </div>
         </article>
     );
