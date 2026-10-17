@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { SubmitEvent } from "react";
-import { useAuthContext } from "../../contexts/AuthContext";
+import { useAuthContext } from "../../hooks/useAuthContext";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
@@ -21,7 +21,7 @@ function Login() {
         try {
             await login(email, password);
             navigate("/catalogo");
-        } catch (error) {
+        } catch {
             //console.error(error);
             setError("No se pudo iniciar sesión.");
         } finally {

@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { JSX } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 
-import { useAuthContext } from "../../contexts/AuthContext";
+import { useAuthContext } from "../../hooks/useAuthContext";
 import "./Navbar.css";
 
 function Navbar(): JSX.Element {

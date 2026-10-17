@@ -1,7 +1,7 @@
 import type { JSX } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 
-import { useAuthContext } from "../contexts/AuthContext";
+import { useAuthContext } from "../hooks/useAuthContext";
 
 function AdminRoute(): JSX.Element {
     const { user, role, loading } = useAuthContext();
