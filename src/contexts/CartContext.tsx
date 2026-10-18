@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { JSX, ReactNode } from "react";
 
 import type { CartItem } from "../types/cart";
@@ -9,8 +9,82 @@ interface CartProviderProps {
     children: ReactNode;
 }
 
+const STORAGE_KEY = "libreria-cart";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null;
+}
+
+// Lee el carrito guardado. Cualquier dato inválido se descarta:
+// localStorage lo puede editar cualquiera, así que no se confía en él.
+function loadCart(): CartItem[] {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+
+        if (!raw) {
+            return [];
+        }
+
+        const parsed: unknown = JSON.parse(raw);
+
+        if (!Array.isArray(parsed)) {
+            return [];
+        }
+
+        const loaded: CartItem[] = [];
+
+        for (const entry of parsed) {
+            if (!isRecord(entry) || !isRecord(entry.product)) {
+                continue;
+            }
+
+            const product = entry.product;
+            const quantity = entry.quantity;
+
+            if (
+                typeof product.id !== "string" ||
+                typeof product.price !== "number" ||
+                typeof product.stock !== "number" ||
+                typeof quantity !== "number"
+            ) {
+                continue;
+            }
+
+            const safeQuantity = Math.min(
+                Math.floor(quantity),
+                product.stock,
+            );
+
+            if (!Number.isFinite(safeQuantity) || safeQuantity <= 0) {
+                continue;
+            }
+
+            loaded.push({
+                product: {
+                    ...(product as unknown as Product),
+                    createdAt: new Date(String(product.createdAt)),
+                },
+                quantity: safeQuantity,
+            });
+        }
+
+        return loaded;
+    } catch {
+        return [];
+    }
+}
+
 export function CartProvider({ children }: CartProviderProps): JSX.Element {
-    const [items, setItems] = useState<CartItem[]>([]);
+    const [items, setItems] = useState<CartItem[]>(loadCart);
+
+    // Cada vez que cambia el carrito, lo guardamos en el navegador.
+    useEffect(() => {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+        } catch {
+            // Sin espacio o almacenamiento bloqueado: el carrito sigue en memoria.
+        }
+    }, [items]);
 
     // Valores derivados: se calculan en cada render a partir de items.
     const total = items.reduce(
