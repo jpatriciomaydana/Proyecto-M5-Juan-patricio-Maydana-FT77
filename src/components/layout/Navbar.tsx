@@ -3,6 +3,7 @@ import type { JSX } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 
 import { useAuthContext } from "../../hooks/useAuthContext";
+import CartLink from "../cart/CartLink";
 import "./Navbar.css";
 
 function Navbar(): JSX.Element {
@@ -43,65 +44,63 @@ function Navbar(): JSX.Element {
                     />
                 </Link>
 
-                <button
-                    type="button"
-                    className="navbar__toggle"
-                    aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
-                    aria-expanded={menuOpen}
-                    aria-controls="navbar-menu"
-                    onClick={() => setMenuOpen(!menuOpen)}
-                >
-                    <span />
-                    <span />
-                    <span />
-                </button>
+                <div className="navbar__actions">
+                    <CartLink onNavigate={closeMenu} />
+
+                    <button
+                        type="button"
+                        className="navbar__toggle"
+                        aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+                        aria-expanded={menuOpen}
+                        aria-controls="navbar-menu"
+                        onClick={() => setMenuOpen(!menuOpen)}
+                    >
+                        <span />
+                        <span />
+                        <span />
+                    </button>
+                </div>
 
                 <div
                     id="navbar-menu"
                     className={`navbar__menu ${menuOpen ? "navbar__menu--open" : ""}`}
                 >
-                    <NavLink
-                        to="/"
-                        end
-                        className="navbar__link"
-                        onClick={closeMenu}
-                    >
-                        Inicio
-                    </NavLink>
-
-                    <NavLink
-                        to="/catalogo"
-                        className="navbar__link"
-                        onClick={closeMenu}
-                    >
-                        Catálogo
-                    </NavLink>
-
-                    <NavLink
-                        to="/carrito"
-                        className="navbar__link"
-                        onClick={closeMenu}
-                    >
-                        Carrito
-                    </NavLink>
-
-                    <NavLink
-                        to="/mis-pedidos"
-                        className="navbar__link"
-                        onClick={closeMenu}
-                    >
-                        Mis pedidos
-                    </NavLink>
-
-                    {role === "admin" && (
+                    <div className="subnav">
                         <NavLink
-                            to="/admin"
-                            className="navbar__link"
+                            to="/"
+                            end
+                            className="subnav__link"
                             onClick={closeMenu}
                         >
-                            Admin
+                            Inicio
                         </NavLink>
-                    )}
+
+                        <NavLink
+                            to="/catalogo"
+                            className="subnav__link"
+                            onClick={closeMenu}
+                        >
+                            Catálogo
+                        </NavLink>
+
+                        <NavLink
+                            to="/mis-pedidos"
+                            className="subnav__link"
+                            onClick={closeMenu}
+                        >
+                            Mis pedidos
+                        </NavLink>
+
+                        {role === "admin" && (
+                            <NavLink
+                                to="/admin"
+                                className="subnav__link"
+                                onClick={closeMenu}
+                            >
+                                Admin
+                            </NavLink>
+                        )}
+                    </div>
 
                     {!loading && (
                         <div className="navbar__account">

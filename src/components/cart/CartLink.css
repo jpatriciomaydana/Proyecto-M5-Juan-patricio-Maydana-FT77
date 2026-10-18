@@ -1,0 +1,68 @@
+/* ========================================
+   ENLACE AL CARRITO (NAVBAR) — MOBILE FIRST
+   Celular y tablet: solo icono con insignia.
+   ======================================== */
+
+.navbar__link.cart-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+}
+
+.cart-link__icon {
+    position: relative;
+    display: inline-flex;
+}
+
+/* Insignia sobre la esquina superior derecha del icono */
+.cart-link__count {
+    position: absolute;
+    top: -9px;
+    right: -12px;
+    box-sizing: border-box;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 4px;
+    border: 2px solid #f7f3ec;
+    border-radius: 10px;
+    background: #8c6734;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+}
+
+/* El texto queda solo para lectores de pantalla */
+.cart-link__text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* ========================================
+   ESCRITORIO — desde 1024 px: icono y texto
+   ======================================== */
+
+@media (min-width: 1024px) {
+    .navbar__link.cart-link {
+        justify-content: flex-start;
+        min-width: 0;
+        padding: 12px 8px;
+    }
+
+    .cart-link__text {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        clip-path: none;
+    }
+}
