@@ -5,6 +5,7 @@ import type { Product } from "../types/product";
 
 export interface CartContextType extends CartState {
     itemCount: number;
+    loading: boolean;
     getQuantity: (productId: string) => number;
     addItem: (product: Product) => void;
     updateQuantity: (productId: string, quantity: number) => void;

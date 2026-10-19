@@ -117,12 +117,24 @@ function CartRow({ item }: CartRowProps): JSX.Element {
 }
 
 function Cart(): JSX.Element {
-    const { items, total, itemCount, clearCart } = useCart();
+    const { items, total, itemCount, loading, clearCart } = useCart();
 
     function handleClear(): void {
         if (window.confirm("¿Querés vaciar el carrito?")) {
             clearCart();
         }
+    }
+
+    if (loading) {
+        return (
+            <section className="cart-page">
+                <h1 className="cart-page__title">Carrito</h1>
+
+                <div className="cart-empty" role="status">
+                    <p className="cart-empty__text">Cargando carrito…</p>
+                </div>
+            </section>
+        );
     }
 
     if (items.length === 0) {
