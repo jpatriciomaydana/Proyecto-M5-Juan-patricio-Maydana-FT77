@@ -27,9 +27,9 @@ function App(): JSX.Element {
         <Route path="/registro" element={<Register />} />
         <Route path="/catalogo" element={<Catalog />} />
         <Route path="/catalogo/:id" element={<ProductDetail />} />
+        <Route path="/carrito" element={<Cart />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/carrito" element={<Cart />} />
           <Route path="/mis-pedidos" element={<Orders />} />
         </Route>
       </Route>
