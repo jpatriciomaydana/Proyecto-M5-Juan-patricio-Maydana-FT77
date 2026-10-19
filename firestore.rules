@@ -8,6 +8,14 @@ service cloud.firestore {
              && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
+    function isValidCart(data) {
+      return data.keys().hasOnly(['items', 'updatedAt'])
+             && data.keys().hasAll(['items', 'updatedAt'])
+             && data.items is list
+             && data.items.size() <= 100
+             && data.updatedAt == request.time;
+    }
+
     match /users/{userId} {
       allow create: if request.auth != null
                     && request.auth.uid == userId
@@ -29,6 +37,18 @@ service cloud.firestore {
     match /products/{productId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();
+    }
+
+    match /carts/{userId} {
+      allow read: if request.auth != null
+                  && request.auth.uid == userId;
+
+      allow create, update: if request.auth != null
+                            && request.auth.uid == userId
+                            && isValidCart(request.resource.data);
+
+      allow delete: if request.auth != null
+                    && request.auth.uid == userId;
     }
   }
 }
