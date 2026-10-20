@@ -28,3 +28,6 @@ dist-ssr
 # Claves de servicio de Firebase/Google (secretos)
 serviceAccount*.json
 *-firebase-adminsdk-*.json
+
+.vercel
+.env*
