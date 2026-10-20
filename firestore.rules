@@ -16,6 +16,26 @@ service cloud.firestore {
              && data.updatedAt == request.time;
     }
 
+    function productKeys() {
+      return ['title', 'author', 'description', 'price', 'categoryId', 'stock',
+              'imageUrl', 'isbn', 'publisher', 'publicationYear', 'firstEdition',
+              'createdAt'];
+    }
+
+    function hasValidProductValues(data) {
+      return data.title is string && data.title.size() >= 1 && data.title.size() <= 200
+             && data.author is string && data.author.size() >= 1 && data.author.size() <= 200
+             && data.description is string && data.description.size() <= 5000
+             && data.price is number && data.price > 0
+             && data.categoryId in ['Terror', 'Novela', 'Fantasía', 'Ciencia Ficción', 'Clásicos']
+             && data.stock is int && data.stock >= 0
+             && data.imageUrl is string && data.imageUrl.size() <= 2048
+             && data.isbn is string && data.isbn.size() <= 30
+             && data.publisher is string && data.publisher.size() >= 1 && data.publisher.size() <= 200
+             && data.publicationYear is int
+             && data.firstEdition is bool;
+    }
+
     match /users/{userId} {
       allow create: if request.auth != null
                     && request.auth.uid == userId
@@ -36,7 +56,22 @@ service cloud.firestore {
 
     match /products/{productId} {
       allow read: if true;
-      allow create, update, delete: if isAdmin();
+
+      allow create: if isAdmin()
+                    && request.resource.data.keys().hasOnly(productKeys())
+                    && request.resource.data.keys().hasAll(productKeys())
+                    && hasValidProductValues(request.resource.data)
+                    && request.resource.data.createdAt == request.time;
+
+      allow update: if isAdmin()
+                    && request.resource.data.keys().hasAll(productKeys())
+                    && request.resource.data.keys().hasOnly(productKeys().concat(['id']))
+                    && hasValidProductValues(request.resource.data)
+                    && (!('id' in request.resource.data)
+                        || request.resource.data.id == productId)
+                    && request.resource.data.createdAt == resource.data.createdAt;
+
+      allow delete: if isAdmin();
     }
 
     match /carts/{userId} {
@@ -49,6 +84,17 @@ service cloud.firestore {
 
       allow delete: if request.auth != null
                     && request.auth.uid == userId;
+    }
+
+    match /orders/{orderId} {
+      allow read: if request.auth != null
+                  && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow update: if isAdmin()
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+                    && request.resource.data.status in ['pending', 'processing', 'completed', 'cancelled'];
+
+      allow create, delete: if false;
     }
   }
 }
