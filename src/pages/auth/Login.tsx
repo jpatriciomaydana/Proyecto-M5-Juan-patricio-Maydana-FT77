@@ -1,7 +1,25 @@
 import { useState } from "react";
 import type { SubmitEvent } from "react";
 import { useAuthContext } from "../../hooks/useAuthContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+
+// Adónde volver tras iniciar sesión. Solo se aceptan rutas internas
+// ("/carrito"), nunca direcciones externas.
+function getReturnTo(state: unknown): string {
+    if (typeof state === "object" && state !== null && "returnTo" in state) {
+        const { returnTo } = state as { returnTo: unknown };
+
+        if (
+            typeof returnTo === "string" &&
+            returnTo.startsWith("/") &&
+            !returnTo.startsWith("//")
+        ) {
+            return returnTo;
+        }
+    }
+
+    return "/catalogo";
+}
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -11,6 +29,7 @@ function Login() {
 
     const { login } = useAuthContext();
     const navigate = useNavigate();
+    const location = useLocation();
 
     async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -20,7 +39,7 @@ function Login() {
 
         try {
             await login(email, password);
-            navigate("/catalogo");
+            navigate(getReturnTo(location.state));
         } catch {
             //console.error(error);
             setError("No se pudo iniciar sesión.");
