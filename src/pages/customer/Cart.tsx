@@ -3,7 +3,9 @@ import type { JSX } from "react";
 import { Link } from "react-router-dom";
 
 import { CartIcon } from "../../components/common/Icons";
+import { useAuthContext } from "../../hooks/useAuthContext";
 import { useCart } from "../../hooks/useCart";
+import { createOrder } from "../../services/orderService";
 import type { CartItem } from "../../types/cart";
 import "./Cart.css";
 
@@ -14,9 +16,10 @@ const priceFormatter = new Intl.NumberFormat("es-AR", {
 
 interface CartRowProps {
     item: CartItem;
+    locked: boolean;
 }
 
-function CartRow({ item }: CartRowProps): JSX.Element {
+function CartRow({ item, locked }: CartRowProps): JSX.Element {
     const { updateQuantity, removeItem } = useCart();
     const [imageFailed, setImageFailed] = useState(false);
 
@@ -70,7 +73,7 @@ function CartRow({ item }: CartRowProps): JSX.Element {
                         type="button"
                         className="cart-item__qty-btn"
                         aria-label={`Quitar una unidad de ${product.title}`}
-                        disabled={quantity <= 1}
+                        disabled={quantity <= 1 || locked}
                         onClick={() =>
                             updateQuantity(product.id, quantity - 1)
                         }
@@ -84,7 +87,7 @@ function CartRow({ item }: CartRowProps): JSX.Element {
                         type="button"
                         className="cart-item__qty-btn"
                         aria-label={`Agregar una unidad de ${product.title}`}
-                        disabled={atMaxStock}
+                        disabled={atMaxStock || locked}
                         onClick={() =>
                             updateQuantity(product.id, quantity + 1)
                         }
@@ -101,6 +104,7 @@ function CartRow({ item }: CartRowProps): JSX.Element {
                     type="button"
                     className="cart-item__remove"
                     aria-label={`Quitar ${product.title} del carrito`}
+                    disabled={locked}
                     onClick={() => removeItem(product.id)}
                 >
                     Quitar
@@ -117,11 +121,43 @@ function CartRow({ item }: CartRowProps): JSX.Element {
 }
 
 function Cart(): JSX.Element {
+    const { user } = useAuthContext();
     const { items, total, itemCount, loading, clearCart } = useCart();
+
+    const [submitting, setSubmitting] = useState(false);
+    const [orderError, setOrderError] = useState("");
+    const [orderId, setOrderId] = useState<string | null>(null);
 
     function handleClear(): void {
         if (window.confirm("¿Querés vaciar el carrito?")) {
             clearCart();
+        }
+    }
+
+    async function handleConfirm(): Promise<void> {
+        if (!user || submitting) {
+            return;
+        }
+
+        setSubmitting(true);
+        setOrderError("");
+
+        try {
+            const newOrderId = await createOrder(items);
+
+            // Compra hecha: el servidor ya vació el carrito de la cuenta.
+            // Acá se vacía el de la pantalla.
+            clearCart();
+            setOrderId(newOrderId);
+        } catch (error) {
+            console.error("Error al confirmar la compra:", error);
+            setOrderError(
+                error instanceof Error
+                    ? error.message
+                    : "No se pudo completar la compra. Intentá de nuevo.",
+            );
+        } finally {
+            setSubmitting(false);
         }
     }
 
@@ -132,6 +168,29 @@ function Cart(): JSX.Element {
 
                 <div className="cart-empty" role="status">
                     <p className="cart-empty__text">Cargando carrito…</p>
+                </div>
+            </section>
+        );
+    }
+
+    // Va antes del carrito vacío: tras comprar, el carrito queda vacío
+    // y igual queremos mostrar la confirmación.
+    if (orderId) {
+        return (
+            <section className="cart-page">
+                <h1 className="cart-page__title">¡Compra realizada!</h1>
+
+                <div className="cart-success" role="status">
+                    <p className="cart-success__text">
+                        Registramos tu pedido. Es una compra simulada: no se
+                        realizó ningún cobro.
+                    </p>
+                    <p className="cart-success__id">
+                        Número de pedido: <strong>{orderId}</strong>
+                    </p>
+                    <Link to="/mis-pedidos" className="cart-success__link">
+                        Ver mis pedidos
+                    </Link>
                 </div>
             </section>
         );
@@ -164,7 +223,11 @@ function Cart(): JSX.Element {
             <div className="cart-page__layout">
                 <ul className="cart-page__list">
                     {items.map((item) => (
-                        <CartRow key={item.product.id} item={item} />
+                        <CartRow
+                            key={item.product.id}
+                            item={item}
+                            locked={submitting}
+                        />
                     ))}
                 </ul>
 
@@ -183,9 +246,42 @@ function Cart(): JSX.Element {
                         <strong>{priceFormatter.format(total)}</strong>
                     </p>
 
+                    <p className="cart-summary__note">
+                        Compra simulada: no se realiza ningún cobro.
+                    </p>
+
+                    {user ? (
+                        <button
+                            type="button"
+                            className="cart-summary__checkout"
+                            disabled={submitting}
+                            aria-busy={submitting}
+                            onClick={() => void handleConfirm()}
+                        >
+                            {submitting
+                                ? "Procesando compra…"
+                                : "Confirmar compra"}
+                        </button>
+                    ) : (
+                        <Link
+                            to="/login"
+                            state={{ returnTo: "/carrito" }}
+                            className="cart-summary__checkout"
+                        >
+                            Iniciar sesión para comprar
+                        </Link>
+                    )}
+
+                    {orderError && (
+                        <p className="cart-summary__error" role="alert">
+                            {orderError}
+                        </p>
+                    )}
+
                     <button
                         type="button"
                         className="cart-summary__clear"
+                        disabled={submitting}
                         onClick={handleClear}
                     >
                         Vaciar carrito

@@ -169,6 +169,12 @@
     cursor: pointer;
 }
 
+/* NUEVO: "Quitar" deshabilitado mientras se procesa la compra */
+.cart-item__remove:disabled {
+    color: #b9b3a6;
+    cursor: not-allowed;
+}
+
 .cart-item__note {
     grid-column: 1 / -1;
     margin: 0;
@@ -214,6 +220,51 @@
     font-size: 22px;
 }
 
+/* NUEVO: nota, botón de confirmar compra y error */
+
+.cart-summary__note {
+    margin: 0 0 12px;
+    color: #706d63;
+    font-size: 13px;
+}
+
+.cart-summary__checkout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 44px;
+    margin-bottom: 12px;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 4px;
+    background: #1f3528;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.cart-summary__checkout:hover:not(:disabled) {
+    background: #2d4937;
+}
+
+.cart-summary__checkout:disabled {
+    background: #b9b3a6;
+    cursor: not-allowed;
+}
+
+.cart-summary__error {
+    margin: 0 0 12px;
+    color: #8a2d2d;
+    font-size: 14px;
+}
+
 .cart-summary__clear {
     width: 100%;
     min-height: 44px;
@@ -230,9 +281,17 @@
         color 0.2s ease;
 }
 
-.cart-summary__clear:hover {
+/* CAMBIADO: el hover ya no aplica si el botón está deshabilitado */
+.cart-summary__clear:hover:not(:disabled) {
     background: #1f3528;
     color: #ffffff;
+}
+
+/* NUEVO */
+.cart-summary__clear:disabled {
+    border-color: #b9b3a6;
+    color: #b9b3a6;
+    cursor: not-allowed;
 }
 
 /* Carrito vacío */
@@ -274,6 +333,51 @@
 }
 
 .cart-empty__link:hover {
+    background: #2d4937;
+}
+
+/* NUEVO: compra realizada */
+
+.cart-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 48px 20px;
+    border: 1px solid #e6dfd2;
+    border-radius: 6px;
+    background: #ffffff;
+    text-align: center;
+}
+
+.cart-success__text {
+    margin: 0;
+    color: #706d63;
+    font-size: 16px;
+}
+
+.cart-success__id {
+    margin: 0;
+    color: #292720;
+    font-size: 14px;
+    word-break: break-all;
+}
+
+.cart-success__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 20px;
+    border-radius: 4px;
+    background: #1f3528;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.cart-success__link:hover {
     background: #2d4937;
 }
 
