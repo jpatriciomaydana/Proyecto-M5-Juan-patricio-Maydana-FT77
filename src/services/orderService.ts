@@ -1,9 +1,46 @@
-import { auth } from "./firebase";
+import { collection, getDocs, query, Timestamp, where } from "firebase/firestore";
+import type { DocumentData } from "firebase/firestore";
+
+import { auth, db } from "./firebase";
 import { saveCartItems } from "./cartService";
 import type { CartItem } from "../types/cart";
+import type { Order, OrderItem, OrderStatus } from "../types/order";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null;
+}
+
+// Convierte un documento de Firestore en un Order de la app.
+// Igual que toProduct: createdAt llega como Timestamp y se pasa a Date.
+function toOrder(id: string, data: DocumentData): Order {
+    const createdAt =
+        data.createdAt instanceof Timestamp
+            ? data.createdAt.toDate()
+            : new Date(0);
+
+    return {
+        id,
+        userId: String(data.userId ?? ""),
+        items: Array.isArray(data.items) ? (data.items as OrderItem[]) : [],
+        total: Number(data.total ?? 0),
+        status: data.status as OrderStatus,
+        createdAt,
+    };
+}
+
+// Trae los pedidos de un cliente. El where("userId", "==", uid) es obligatorio:
+// las reglas de Firestore no filtran, rechazan toda consulta que pudiera
+// devolver pedidos ajenos. No usamos orderBy para no exigir un índice
+// compuesto; se ordena acá, del más nuevo al más viejo.
+export async function getUserOrders(uid: string): Promise<Order[]> {
+    const ordersRef = collection(db, "orders");
+    const ordersQuery = query(ordersRef, where("userId", "==", uid));
+
+    const snapshot = await getDocs(ordersQuery);
+
+    return snapshot.docs
+        .map((document) => toOrder(document.id, document.data()))
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
 
 // Confirma la compra. El navegador NO manda el carrito: manda solo su token
