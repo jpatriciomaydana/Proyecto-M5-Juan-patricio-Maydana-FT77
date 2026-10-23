@@ -17,6 +17,7 @@ import Orders from "./pages/customer/Orders";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminProductForm from "./pages/admin/AdminProductForm";
+import AdminOrders from "./pages/admin/AdminOrders";
 
 function App(): JSX.Element {
   return (
@@ -46,6 +47,7 @@ function App(): JSX.Element {
             path="/admin/productos/:id/editar"
             element={<AdminProductForm />}
           />
+          <Route path="/admin/pedidos" element={<AdminOrders />} />
         </Route>
       </Route>
     </Routes>

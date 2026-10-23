@@ -28,6 +28,10 @@ function toOrder(id: string, data: DocumentData): Order {
     };
 }
 
+function sortNewestFirst(orders: Order[]): Order[] {
+    return orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}
+
 // Trae los pedidos de un cliente. El where("userId", "==", uid) es obligatorio:
 // las reglas de Firestore no filtran, rechazan toda consulta que pudiera
 // devolver pedidos ajenos. No usamos orderBy para no exigir un índice
@@ -38,9 +42,20 @@ export async function getUserOrders(uid: string): Promise<Order[]> {
 
     const snapshot = await getDocs(ordersQuery);
 
-    return snapshot.docs
-        .map((document) => toOrder(document.id, document.data()))
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return sortNewestFirst(
+        snapshot.docs.map((document) => toOrder(document.id, document.data())),
+    );
+}
+
+// Trae TODOS los pedidos. Solo funciona con una cuenta admin: la regla de
+// orders permite leer cualquier pedido únicamente si isAdmin() es verdadero.
+// Con una cuenta de cliente, Firestore rechaza la consulta (permission-denied).
+export async function getAllOrders(): Promise<Order[]> {
+    const snapshot = await getDocs(collection(db, "orders"));
+
+    return sortNewestFirst(
+        snapshot.docs.map((document) => toOrder(document.id, document.data())),
+    );
 }
 
 // Confirma la compra. El navegador NO manda el carrito: manda solo su token

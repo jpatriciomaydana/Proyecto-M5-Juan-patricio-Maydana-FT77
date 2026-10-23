@@ -23,6 +23,13 @@ function AdminLayout(): JSX.Element {
                         Productos
                     </NavLink>
 
+                    <NavLink
+                        to="/admin/pedidos"
+                        className="admin-sidebar__link"
+                    >
+                        Pedidos
+                    </NavLink>
+
                     <Link to="/" className="admin-sidebar__link">
                         Volver a la tienda
                     </Link>
