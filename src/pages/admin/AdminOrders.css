@@ -285,6 +285,13 @@
         text-align: left;
     }
 
+    /* Sin un ancho máximo, estas frases largas ensanchan la columna
+       "Estado" y le quitan espacio a las demás. */
+    .admin-orders__confirm,
+    .admin-orders__hint {
+        max-width: 18rem;
+    }
+
     .admin-orders__confirm-yes,
     .admin-orders__confirm-no {
         min-height: 36px;
