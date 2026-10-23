@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { JSX } from "react";
 
-import { getAllOrders } from "../../services/orderService";
+import { getAllOrders, updateOrderStatus } from "../../services/orderService";
 import type { Order, OrderStatus } from "../../types/order";
 import {
     ORDER_STATUSES,
@@ -17,10 +17,28 @@ function isStatusFilter(value: string): value is StatusFilter {
     return value === "all" || ORDER_STATUSES.some((status) => status === value);
 }
 
+// Devuelve el estado si el texto es uno válido; si no, null.
+function parseStatus(value: string): OrderStatus | null {
+    return ORDER_STATUSES.find((status) => status === value) ?? null;
+}
+
 // Los pedidos guardan el userId pero no el correo del cliente, así que
 // mostramos un id corto y el completo queda en el tooltip.
 function shortId(id: string): string {
     return id.length > 8 ? `${id.slice(0, 8)}…` : id;
+}
+
+function getUpdateErrorMessage(error: unknown): string {
+    if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === "permission-denied"
+    ) {
+        return "No tenés permisos para cambiar el estado. Verificá que tu cuenta sea de administrador.";
+    }
+
+    return "No pudimos cambiar el estado del pedido. Intentá de nuevo en unos minutos.";
 }
 
 function AdminOrders(): JSX.Element {
@@ -28,6 +46,14 @@ function AdminOrders(): JSX.Element {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [filter, setFilter] = useState<StatusFilter>("all");
+
+    // Pedido que está pidiendo confirmación para cancelarse y pedido que se
+    // está guardando en Firestore.
+    const [confirmingCancelId, setConfirmingCancelId] = useState<string | null>(
+        null,
+    );
+    const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const [updateError, setUpdateError] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -59,6 +85,45 @@ function AdminOrders(): JSX.Element {
         };
     }, []);
 
+    async function applyStatus(order: Order, status: OrderStatus): Promise<void> {
+        setUpdateError(null);
+        setUpdatingId(order.id);
+
+        try {
+            await updateOrderStatus(order.id, status);
+
+            // Firestore ya confirmó: recién ahora cambiamos la fila en pantalla.
+            setOrders((previous) =>
+                previous.map((item) =>
+                    item.id === order.id ? { ...item, status } : item,
+                ),
+            );
+        } catch (caught) {
+            console.error("No se pudo cambiar el estado:", caught);
+            setUpdateError(getUpdateErrorMessage(caught));
+        } finally {
+            setUpdatingId(null);
+            setConfirmingCancelId(null);
+        }
+    }
+
+    function handleSelectChange(order: Order, value: string): void {
+        const nextStatus = parseStatus(value);
+
+        if (!nextStatus || nextStatus === order.status) {
+            return;
+        }
+
+        // Cancelar es definitivo y no repone stock: pide confirmación antes.
+        if (nextStatus === "cancelled") {
+            setUpdateError(null);
+            setConfirmingCancelId(order.id);
+            return;
+        }
+
+        void applyStatus(order, nextStatus);
+    }
+
     // El filtro es del lado del cliente: se traen todos los pedidos una vez
     // y el selector solo cambia cuáles se muestran.
     const visibleOrders =
@@ -85,6 +150,15 @@ function AdminOrders(): JSX.Element {
                     role="alert"
                 >
                     {error}
+                </p>
+            )}
+
+            {updateError && (
+                <p
+                    className="admin-orders__message admin-orders__message--error"
+                    role="alert"
+                >
+                    {updateError}
                 </p>
             )}
 
@@ -147,40 +221,135 @@ function AdminOrders(): JSX.Element {
                                 </tr>
                             </thead>
                             <tbody>
-                                {visibleOrders.map((order) => (
-                                    <tr key={order.id}>
-                                        <td data-label="Fecha">
-                                            <span className="admin-orders__date">
-                                                {formatDate(order.createdAt)}
-                                            </span>
-                                        </td>
-                                        <td data-label="Cliente">
-                                            <span title={order.userId}>
-                                                {shortId(order.userId)}
-                                            </span>
-                                        </td>
-                                        <td className="admin-orders__cell-items">
-                                            <ul className="admin-orders__items">
-                                                {order.items.map((item) => (
-                                                    <li key={item.productId}>
-                                                        {item.quantity} × {item.title}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </td>
-                                        <td data-label="Total">
-                                            <strong>{formatPrice(order.total)}</strong>
-                                        </td>
-                                        <td data-label="Estado">
-                                            <span
-                                                className={`admin-orders__status admin-orders__status--${order.status}`}
-                                            >
-                                                {STATUS_LABELS[order.status] ??
-                                                    order.status}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {visibleOrders.map((order) => {
+                                    const isConfirming =
+                                        confirmingCancelId === order.id;
+                                    const isUpdating = updatingId === order.id;
+                                    const isLocked = order.status === "cancelled";
+
+                                    return (
+                                        <tr key={order.id}>
+                                            <td data-label="Fecha">
+                                                <span className="admin-orders__date">
+                                                    {formatDate(order.createdAt)}
+                                                </span>
+                                            </td>
+                                            <td data-label="Cliente">
+                                                <span title={order.userId}>
+                                                    {shortId(order.userId)}
+                                                </span>
+                                            </td>
+                                            <td className="admin-orders__cell-items">
+                                                <ul className="admin-orders__items">
+                                                    {order.items.map((item) => (
+                                                        <li key={item.productId}>
+                                                            {item.quantity} ×{" "}
+                                                            {item.title}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </td>
+                                            <td data-label="Total">
+                                                <strong>
+                                                    {formatPrice(order.total)}
+                                                </strong>
+                                            </td>
+                                            <td data-label="Estado">
+                                                <div className="admin-orders__status-cell">
+                                                    <span
+                                                        className={`admin-orders__status admin-orders__status--${order.status}`}
+                                                    >
+                                                        {STATUS_LABELS[order.status] ??
+                                                            order.status}
+                                                    </span>
+
+                                                    {isLocked && (
+                                                        <p className="admin-orders__hint">
+                                                            Un pedido cancelado ya
+                                                            no se puede modificar.
+                                                        </p>
+                                                    )}
+
+                                                    {!isLocked && !isConfirming && (
+                                                        <select
+                                                            className="admin-orders__select admin-orders__select--row"
+                                                            aria-label={`Cambiar el estado del pedido ${shortId(order.id)}`}
+                                                            value={order.status}
+                                                            disabled={isUpdating}
+                                                            onChange={(event) =>
+                                                                handleSelectChange(
+                                                                    order,
+                                                                    event.target.value,
+                                                                )
+                                                            }
+                                                        >
+                                                            {ORDER_STATUSES.map(
+                                                                (status) => (
+                                                                    <option
+                                                                        key={status}
+                                                                        value={status}
+                                                                    >
+                                                                        {
+                                                                            STATUS_LABELS[
+                                                                            status
+                                                                            ]
+                                                                        }
+                                                                    </option>
+                                                                ),
+                                                            )}
+                                                        </select>
+                                                    )}
+
+                                                    {isConfirming && (
+                                                        <div
+                                                            className="admin-orders__confirm"
+                                                            role="group"
+                                                            aria-label={`Confirmar la cancelación del pedido ${shortId(order.id)}`}
+                                                        >
+                                                            <p className="admin-orders__confirm-text">
+                                                                ¿Cancelar este pedido?
+                                                                No se puede deshacer y
+                                                                no repone el stock:
+                                                                reponelo a mano desde
+                                                                Productos.
+                                                            </p>
+                                                            <div className="admin-orders__actions">
+                                                                <button
+                                                                    type="button"
+                                                                    className="admin-orders__confirm-yes"
+                                                                    onClick={() =>
+                                                                        void applyStatus(
+                                                                            order,
+                                                                            "cancelled",
+                                                                        )
+                                                                    }
+                                                                    disabled={isUpdating}
+                                                                >
+                                                                    {isUpdating
+                                                                        ? "Cancelando..."
+                                                                        : "Sí, cancelar pedido"}
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    className="admin-orders__confirm-no"
+                                                                    onClick={() =>
+                                                                        setConfirmingCancelId(
+                                                                            null,
+                                                                        )
+                                                                    }
+                                                                    disabled={isUpdating}
+                                                                    autoFocus
+                                                                >
+                                                                    No, volver
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     )}

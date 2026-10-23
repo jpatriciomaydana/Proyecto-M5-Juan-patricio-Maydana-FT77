@@ -1,4 +1,12 @@
-import { collection, getDocs, query, Timestamp, where } from "firebase/firestore";
+import {
+    collection,
+    doc,
+    getDocs,
+    query,
+    Timestamp,
+    updateDoc,
+    where,
+} from "firebase/firestore";
 import type { DocumentData } from "firebase/firestore";
 
 import { auth, db } from "./firebase";
@@ -56,6 +64,18 @@ export async function getAllOrders(): Promise<Order[]> {
     return sortNewestFirst(
         snapshot.docs.map((document) => toOrder(document.id, document.data())),
     );
+}
+
+// Cambia SOLO el campo status de un pedido. La regla de orders permite esta
+// escritura únicamente a un admin y únicamente sobre status. No toca el
+// stock de los libros: cancelar un pedido no lo repone (deuda 22).
+export async function updateOrderStatus(
+    orderId: string,
+    status: OrderStatus,
+): Promise<void> {
+    const orderRef = doc(db, "orders", orderId);
+
+    await updateDoc(orderRef, { status });
 }
 
 // Confirma la compra. El navegador NO manda el carrito: manda solo su token
