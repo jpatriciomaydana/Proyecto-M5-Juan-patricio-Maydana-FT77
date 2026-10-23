@@ -3,31 +3,9 @@ import { Link } from "react-router-dom";
 
 import { useAuthContext } from "../../hooks/useAuthContext";
 import { getUserOrders } from "../../services/orderService";
-import type { Order, OrderStatus } from "../../types/order";
+import type { Order } from "../../types/order";
+import { STATUS_LABELS, formatDate, formatPrice } from "../../utils/orders";
 import "./Orders.css";
-
-// Los valores guardados en Firestore siguen en inglés; esto es solo el texto
-// que ve el cliente.
-const STATUS_LABELS: Record<OrderStatus, string> = {
-    pending: "Pendiente",
-    processing: "En proceso",
-    completed: "Completado",
-    cancelled: "Cancelado",
-};
-
-function formatPrice(value: number): string {
-    return `$${value.toLocaleString("es-AR", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    })}`;
-}
-
-function formatDate(date: Date): string {
-    return date.toLocaleString("es-AR", {
-        dateStyle: "long",
-        timeStyle: "short",
-    });
-}
 
 // Guardamos junto a los pedidos el uid al que pertenecen. Así "cargando" se
 // calcula comparando uids y no hace falta llamar a setState dentro del efecto.
