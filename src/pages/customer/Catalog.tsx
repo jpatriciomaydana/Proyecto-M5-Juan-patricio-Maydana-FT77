@@ -50,7 +50,6 @@ function Catalog(): JSX.Element {
     return (
         <section className="catalog">
             <h1 className="catalog__title">Catálogo</h1>
-            <p className="catalog__intro">Acá vas a encontrar nuestros libros.</p>
 
             {products.length === 0 ? (
                 <p className="catalog__intro">
