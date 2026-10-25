@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent, JSX, ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import { uploadProductImage } from "../../services/imageService";
 import {
     createProduct,
     getProductById,
@@ -17,6 +18,14 @@ const CATEGORIES: CategoryId[] = [
     "Ciencia Ficción",
     "Clásicos",
 ];
+
+// Límites de la imagen. Se controlan solo en el navegador (deuda 38).
+const ALLOWED_IMAGE_TYPES: string[] = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+];
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
 // Mientras se escribe, todo es texto. Se convierte a número al validar.
 interface FormValues {
@@ -166,6 +175,19 @@ function getSaveErrorMessage(error: unknown): string {
     return "No pudimos guardar el producto. Intentá de nuevo en unos minutos.";
 }
 
+// Devuelve el motivo por el que un archivo no se puede subir, o null si sirve.
+function getImageFileError(file: File): string | null {
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        return "Tipo de archivo no permitido. Usá JPG, PNG o WebP.";
+    }
+
+    if (file.size > MAX_IMAGE_BYTES) {
+        return "La imagen pesa más de 5 MB. Elegí una más liviana.";
+    }
+
+    return null;
+}
+
 interface FieldProps {
     id: string;
     label: string;
@@ -201,6 +223,13 @@ function AdminProductForm(): JSX.Element {
     );
     const [saving, setSaving] = useState<boolean>(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
+    const [uploading, setUploading] = useState<boolean>(false);
+    const [uploadError, setUploadError] = useState<string | null>(null);
+    // URL cuya imagen no se pudo mostrar. Si la URL cambia, deja de coincidir
+    // y la vista previa se intenta de nuevo.
+    const [failedPreviewUrl, setFailedPreviewUrl] = useState<string | null>(
+        null
+    );
 
     // Solo en modo edición: trae el producto y rellena los campos.
     useEffect(() => {
@@ -250,8 +279,53 @@ function AdminProductForm(): JSX.Element {
         setValues((previous) => ({ ...previous, firstEdition: checked }));
     }
 
+    async function handleImageChange(
+        event: ChangeEvent<HTMLInputElement>
+    ): Promise<void> {
+        const input = event.target;
+        const file = input.files?.[0];
+
+        // Se limpia el selector para poder elegir de nuevo el mismo archivo.
+        input.value = "";
+
+        if (!file) {
+            return;
+        }
+
+        setUploadError(null);
+
+        const fileError = getImageFileError(file);
+
+        if (fileError) {
+            setUploadError(fileError);
+            return;
+        }
+
+        setUploading(true);
+
+        try {
+            const publicUrl = await uploadProductImage(file);
+
+            setValues((previous) => ({ ...previous, imageUrl: publicUrl }));
+            setErrors((previous) => ({ ...previous, imageUrl: undefined }));
+        } catch (error) {
+            setUploadError(
+                error instanceof Error
+                    ? error.message
+                    : "No pudimos subir la imagen. Intentá de nuevo."
+            );
+        } finally {
+            setUploading(false);
+        }
+    }
+
     async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
         event.preventDefault();
+
+        if (uploading) {
+            return;
+        }
+
         setSubmitError(null);
 
         const { errors: foundErrors, input } = parseForm(values);
@@ -314,6 +388,10 @@ function AdminProductForm(): JSX.Element {
             </section>
         );
     }
+
+    const previewUrl = values.imageUrl.trim();
+    const hasPreview = previewUrl !== "" && isHttpUrl(previewUrl);
+    const previewFailed = hasPreview && previewUrl === failedPreviewUrl;
 
     return (
         <section className="product-form">
@@ -459,6 +537,48 @@ function AdminProductForm(): JSX.Element {
                 </Field>
 
                 <Field
+                    id="imageFile"
+                    label="Subir imagen (JPG, PNG o WebP, hasta 5 MB)"
+                >
+                    <input
+                        id="imageFile"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="product-form__file"
+                        onChange={handleImageChange}
+                        disabled={uploading}
+                    />
+                    {uploading && (
+                        <p className="product-form__image-status" role="status">
+                            Subiendo imagen...
+                        </p>
+                    )}
+                    {uploadError && (
+                        <p className="product-form__image-error" role="alert">
+                            {uploadError}
+                        </p>
+                    )}
+                </Field>
+
+                {hasPreview && !previewFailed && (
+                    <div className="product-form__image-preview">
+                        <img
+                            src={previewUrl}
+                            alt="Vista previa de la imagen del producto"
+                            className="product-form__image"
+                            onError={() => setFailedPreviewUrl(previewUrl)}
+                        />
+                    </div>
+                )}
+
+                {previewFailed && (
+                    <p className="product-form__image-error" role="alert">
+                        No pudimos mostrar la imagen de esa URL. Revisala o subí
+                        otra.
+                    </p>
+                )}
+
+                <Field
                     id="imageUrl"
                     label="URL de la imagen (opcional)"
                     error={errors.imageUrl}
@@ -496,7 +616,7 @@ function AdminProductForm(): JSX.Element {
                     <button
                         type="submit"
                         className="product-form__button"
-                        disabled={saving}
+                        disabled={saving || uploading}
                     >
                         {saving
                             ? "Guardando..."
